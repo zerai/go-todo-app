@@ -9,6 +9,7 @@ install:
   - go get -t -v ./...
 
 script:
+  - gofmt -d -e ./..
   - go test -v -race ./...
 
 matrix:
