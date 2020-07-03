@@ -9,6 +9,8 @@ install:
   - go get -t -v ./...
 
 script:
+  #- gofmt -d -e ./..
+  - diff -u <(echo -n) <(gofmt -d ./)
   - go test -v -race ./...
 
 matrix:
