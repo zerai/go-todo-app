@@ -15,6 +15,9 @@ var (
 // TodoRepository interface for TodoRepository
 type TodoRepository interface {
 	findByID(identifier int) Todo
+	Add(aTodo Todo) error
+	Update(aTodo Todo) error
+	Remove(identifier int)
 }
 
 // TodoRepositoryInMemory in memory storage for Todo
@@ -71,4 +74,9 @@ func (r *TodoRepositoryInMemory) Update(aTodo Todo) error {
 	}
 
 	return nil
+}
+
+// Remove ...
+func (r *TodoRepositoryInMemory) Remove(identifier int) {
+	delete(r.todos, identifier)
 }

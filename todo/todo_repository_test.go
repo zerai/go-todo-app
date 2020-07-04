@@ -93,6 +93,20 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestRemove(t *testing.T) {
+	identifier := 333
+	repositoryInMemory := NewTodoRepositoryInMemory()
+	todo := NewTodoAsValue(identifier, "a label")
+	repositoryInMemory.Add(todo)
+
+	repositoryInMemory.Remove(identifier)
+
+	_, err := repositoryInMemory.FindByID(identifier)
+	if err != ErrTodoNotFound {
+		t.Errorf("Expected todo with key %d to be deleted", identifier)
+	}
+}
+
 func assertStrings(t *testing.T, got, want string) {
 	t.Helper()
 
