@@ -55,3 +55,20 @@ func (r *TodoRepositoryInMemory) Add(aTodo Todo) error {
 
 	return nil
 }
+
+// Update ...
+func (r *TodoRepositoryInMemory) Update(aTodo Todo) error {
+	key := aTodo.ID()
+	_, err := r.FindByID(key)
+
+	switch err {
+	case ErrTodoNotFound:
+		return ErrTodoNotFound
+	case nil:
+		r.todos[key] = aTodo
+	default:
+		return err
+	}
+
+	return nil
+}

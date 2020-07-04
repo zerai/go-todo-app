@@ -63,6 +63,36 @@ func TestAddTodo(t *testing.T) {
 	})
 }
 
+func TestUpdate(t *testing.T) {
+	t.Run("Shoud update existing Todo", func(t *testing.T) {
+		repositoryInMemory := NewTodoRepositoryInMemory()
+		todo := NewTodoAsValue(888, "a label")
+		repositoryInMemory.Add(todo)
+		updatedTodo := NewTodoAsValue(888, "an updated label")
+		want := updatedTodo
+
+		repositoryInMemory.Update(updatedTodo)
+
+		got, err := repositoryInMemory.FindByID(888)
+		if err != nil {
+			t.Fatal("should find updated Todo:", err)
+		}
+
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+
+	t.Run("Should returns error for unknow Todo", func(t *testing.T) {
+		repositoryInMemory := NewTodoRepositoryInMemory()
+		todo := NewTodoAsValue(888, "a label")
+
+		err := repositoryInMemory.Update(todo)
+
+		assertError(t, err, ErrTodoNotFound)
+	})
+}
+
 func assertStrings(t *testing.T, got, want string) {
 	t.Helper()
 
