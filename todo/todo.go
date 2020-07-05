@@ -15,6 +15,13 @@ func NewTodo(anIdentifier int, aLabel string) *Todo {
 	}
 }
 
+func NewTodoAsValue(anIdentifier int, aLabel string) Todo {
+	return Todo{
+		todoID: anIdentifier,
+		label:  aLabel,
+	}
+}
+
 // ID returns the identifier
 func (t Todo) ID() int {
 	return t.todoID
