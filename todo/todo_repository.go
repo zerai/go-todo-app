@@ -34,7 +34,7 @@ func NewTodoRepositoryInMemory() *TodoRepositoryInMemory {
 }
 
 // FindByID find Todo by identifier, returns Todo or error
-func (r TodoRepositoryInMemory) FindByID(identifier int) (Todo, error) {
+func (r *TodoRepositoryInMemory) FindByID(identifier int) (Todo, error) {
 	todo, ok := r.todos[identifier]
 	if !ok {
 		return Todo{}, ErrTodoNotFound
