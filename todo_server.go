@@ -25,6 +25,7 @@ func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	todo, err := p.repository.FindByID(todoID)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, err.Error())
 		return
 	}
