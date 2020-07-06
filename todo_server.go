@@ -2,25 +2,32 @@ package main
 
 import (
 	"fmt"
+	"github.com/zerai/go-todo-app/todo"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-// TodoServer currently returns 'TODO ONE' given _any_ request.
-func TodoServer(w http.ResponseWriter, r *http.Request) {
-	todoId := strings.TrimPrefix(r.URL.Path, "/todos/")
-
-	fmt.Fprint(w, GetTodoData(todoId))
+// TodoServer ...
+type TodoServer struct {
+	repository todo.TodoRepository
 }
 
-func GetTodoData(todoId string) string {
-	if todoId == "123" {
-		return "123 - first todo"
+func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	param := strings.TrimPrefix(r.URL.Path, "/todos/")
+	todoID, conversionErr := strconv.Atoi(param)
+
+	if conversionErr != nil {
+		fmt.Fprint(w, "Error 500 input param conversion error")
+		return
 	}
 
-	if todoId == "666" {
-		return "666 - first todo"
+	todo, err := p.repository.FindByID(todoID)
+	if err != nil {
+		fmt.Fprint(w, err.Error())
+		return
 	}
-
-	return ""
+	resultString := fmt.Sprintf("%v - ", todo.ID()) + todo.Label()
+	fmt.Fprint(w, resultString)
 }

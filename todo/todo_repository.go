@@ -14,7 +14,7 @@ var (
 
 // TodoRepository interface for TodoRepository
 type TodoRepository interface {
-	findByID(identifier int) Todo
+	FindByID(identifier int) (Todo, error)
 	Add(aTodo Todo) error
 	Update(aTodo Todo) error
 	Remove(identifier int)

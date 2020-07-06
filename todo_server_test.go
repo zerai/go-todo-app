@@ -5,15 +5,22 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/zerai/go-todo-app/todo"
 )
 
 func TestGETTodos(t *testing.T) {
+	repository := todo.NewTodoRepositoryInMemory()
+	repository.Add(todo.NewTodoAsValue(123, "first todo"))
+	repository.Add(todo.NewTodoAsValue(666, "second todo"))
+
+	server := &TodoServer{repository}
 
 	t.Run("returns todo data for ID 123", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/todos/123", nil)
 		response := httptest.NewRecorder()
 
-		TodoServer(response, request)
+		server.ServeHTTP(response, request)
 
 		assertResponseBody(t, response.Body.String(), "123 - first todo")
 	})
@@ -22,15 +29,15 @@ func TestGETTodos(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/todos/666", nil)
 		response := httptest.NewRecorder()
 
-		TodoServer(response, request)
+		server.ServeHTTP(response, request)
 
-		assertResponseBody(t, response.Body.String(), "666 - first todo")
+		assertResponseBody(t, response.Body.String(), "666 - second todo")
 	})
 
 }
 
-func newGetTodoRequest(todoId string) *http.Request {
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", todoId), nil)
+func newGetTodoRequest(todoID string) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", todoID), nil)
 	return req
 }
 
