@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/zerai/go-todo-app/todo"
@@ -47,8 +49,56 @@ func TestGETTodos(t *testing.T) {
 	})
 }
 
+func TestPostTodo(t *testing.T) {
+	repository := todo.NewTodoRepositoryInMemory()
+	server := &TodoServer{repository}
+
+	t.Run("it records a Todo when POST", func(t *testing.T) {
+		request := newPostTodoRequest("456")
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusAccepted)
+
+		_, err := repository.FindByID(456)
+		if err != nil {
+			t.Fatal("should find added Todo:", err)
+		}
+	})
+
+	t.Run("it not records a Todo if exist", func(t *testing.T) {
+		identifier := 455
+		identifierAsString := "455"
+		aNewTodo := todo.NewTodoAsValue(identifier, "a label")
+		err := repository.Add(aNewTodo)
+		if err != nil {
+			t.Fatal("should populate with fixture :", err)
+		}
+
+		request := newPostTodoRequest(identifierAsString)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusInternalServerError)
+
+	})
+
+}
+
 func newGetTodoRequest(todoID string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/todos/%s", todoID), nil)
+	return req
+}
+
+func newPostTodoRequest(todoID string) *http.Request {
+	data := url.Values{}
+	data.Set("todo_id", todoID)
+	data.Set("label", "a label")
+
+	req, _ := http.NewRequest(http.MethodPost, "/todos/new", strings.NewReader(data.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	return req
 }
 
