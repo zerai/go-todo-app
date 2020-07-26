@@ -20,6 +20,8 @@ func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.addTodo(w, r)
 	case http.MethodGet:
 		p.showTodo(w, r)
+	case http.MethodDelete:
+		p.deleteTodo(w, r)
 	}
 }
 
@@ -64,5 +66,31 @@ func (p *TodoServer) addTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusAccepted)
+	return
+}
+
+func (p *TodoServer) deleteTodo(w http.ResponseWriter, r *http.Request) {
+	param := strings.TrimPrefix(r.URL.Path, "/todos/")
+	todoID, err := strconv.Atoi(param)
+	if err != nil {
+		fmt.Fprint(w, err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = p.repository.FindByID(todoID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, err.Error())
+		return
+	}
+
+	p.repository.Remove(todoID)
+
+	if err != nil {
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return
 }

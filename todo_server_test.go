@@ -84,7 +84,28 @@ func TestPostTodo(t *testing.T) {
 		assertStatus(t, response.Code, http.StatusInternalServerError)
 
 	})
+}
 
+func TestHandleDeleteTodo(t *testing.T) {
+	identifier := 23
+	identifierAsString := "23"
+	repository := todo.NewTodoRepositoryInMemory()
+	repository.Add(todo.NewTodoAsValue(identifier, "first todo"))
+	server := &TodoServer{repository}
+
+	t.Run("should remove a todo", func(t *testing.T) {
+		request := newDeleteTodoRequest(identifierAsString)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusOK)
+
+		_, err := repository.FindByID(identifier)
+		if err != todo.ErrTodoNotFound {
+			t.Errorf("Expected todo with key %d to be deleted", identifier)
+		}
+	})
 }
 
 func newGetTodoRequest(todoID string) *http.Request {
@@ -99,6 +120,11 @@ func newPostTodoRequest(todoID string) *http.Request {
 
 	req, _ := http.NewRequest(http.MethodPost, "/todos/new", strings.NewReader(data.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	return req
+}
+
+func newDeleteTodoRequest(aTodoID string) *http.Request {
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/todos/%s", aTodoID), nil)
 	return req
 }
 
