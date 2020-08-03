@@ -11,18 +11,25 @@ import (
 // TodoServer ...
 type TodoServer struct {
 	repository todo.TodoRepository
+	router     *http.ServeMux
+}
+
+// NewTodoServer ...
+func NewTodoServer(repository todo.TodoRepository) *TodoServer {
+	todoServer := &TodoServer{
+		repository,
+		http.NewServeMux(),
+	}
+
+	todoServer.router.Handle("/league", http.HandlerFunc(todoServer.leagueHandler))
+
+	todoServer.router.Handle("/todos/", http.HandlerFunc(todoServer.todosHandler))
+
+	return todoServer
 }
 
 func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	router := http.NewServeMux()
-
-	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
-
-	router.Handle("/todos/", http.HandlerFunc(p.todosHandler))
-
-	router.ServeHTTP(w, r)
-
+	p.router.ServeHTTP(w, r)
 }
 
 func (p *TodoServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +46,6 @@ func (p *TodoServer) todosHandler(w http.ResponseWriter, r *http.Request) {
 		p.showTodo(w, r)
 	case http.MethodDelete:
 		p.deleteTodo(w, r)
-
 	}
 }
 
@@ -76,7 +82,6 @@ func (p *TodoServer) addTodo(w http.ResponseWriter, r *http.Request) {
 
 	todo := todo.NewTodoAsValue(todoID, label)
 
-	// store
 	errRepository := p.repository.Add(todo)
 	if errRepository != nil {
 		w.WriteHeader(http.StatusInternalServerError)

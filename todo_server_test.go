@@ -16,7 +16,7 @@ func TestGETTodos(t *testing.T) {
 	repository.Add(todo.NewTodoAsValue(123, "first todo"))
 	repository.Add(todo.NewTodoAsValue(666, "second todo"))
 
-	server := &TodoServer{repository}
+	server := NewTodoServer(repository)
 
 	t.Run("returns todo data for ID 123", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/todos/123", nil)
@@ -51,7 +51,7 @@ func TestGETTodos(t *testing.T) {
 
 func TestPostTodo(t *testing.T) {
 	repository := todo.NewTodoRepositoryInMemory()
-	server := &TodoServer{repository}
+	server := NewTodoServer(repository)
 
 	t.Run("it records a Todo when POST", func(t *testing.T) {
 		request := newPostTodoRequest("456")
@@ -91,7 +91,7 @@ func TestHandleDeleteTodo(t *testing.T) {
 	identifierAsString := "23"
 	repository := todo.NewTodoRepositoryInMemory()
 	repository.Add(todo.NewTodoAsValue(identifier, "first todo"))
-	server := &TodoServer{repository}
+	server := NewTodoServer(repository)
 
 	t.Run("should remove a todo", func(t *testing.T) {
 		request := newDeleteTodoRequest(identifierAsString)
