@@ -15,6 +15,23 @@ type TodoServer struct {
 
 func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	router := http.NewServeMux()
+
+	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
+
+	router.Handle("/todos/", http.HandlerFunc(p.todosHandler))
+
+	router.ServeHTTP(w, r)
+
+}
+
+func (p *TodoServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *TodoServer) todosHandler(w http.ResponseWriter, r *http.Request) {
+	//todo := r.URL.Path[len("/todos/"):]
+
 	switch r.Method {
 	case http.MethodPost:
 		p.addTodo(w, r)
@@ -22,6 +39,7 @@ func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.showTodo(w, r)
 	case http.MethodDelete:
 		p.deleteTodo(w, r)
+
 	}
 }
 

@@ -38,7 +38,7 @@ func TestGETTodos(t *testing.T) {
 		assertResponseBody(t, response.Body.String(), "666 - second todo")
 	})
 
-	t.Run("returns error not found for unknow todo", func(t *testing.T) {
+	t.Run("returns error not found for unknown todo", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/todos/999", nil)
 		response := httptest.NewRecorder()
 
