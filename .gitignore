@@ -18,5 +18,7 @@
 
 
 .env
+Makefile
+Makefile.develop
 go-todo-app
 server
