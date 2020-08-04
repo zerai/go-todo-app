@@ -11,27 +11,28 @@ import (
 // TodoServer ...
 type TodoServer struct {
 	repository todo.TodoRepository
-	router     *http.ServeMux
+	http.Handler
 }
 
 // NewTodoServer ...
 func NewTodoServer(repository todo.TodoRepository) *TodoServer {
-	todoServer := &TodoServer{
-		repository,
-		http.NewServeMux(),
-	}
+	todoServer := new(TodoServer)
 
-	todoServer.router.Handle("/league", http.HandlerFunc(todoServer.leagueHandler))
+	todoServer.repository = repository
 
-	todoServer.router.Handle("/todos/", http.HandlerFunc(todoServer.todosHandler))
+	router := http.NewServeMux()
+	router.Handle("/league", http.HandlerFunc(todoServer.leagueHandler))
+	router.Handle("/todos/", http.HandlerFunc(todoServer.todosHandler))
+
+	todoServer.Handler = router
 
 	return todoServer
 }
 
-func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+/* func (p *TodoServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.router.ServeHTTP(w, r)
 }
-
+*/
 func (p *TodoServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
